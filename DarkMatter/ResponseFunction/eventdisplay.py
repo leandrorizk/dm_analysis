@@ -4,7 +4,10 @@ import re
 
 from ROOT import TFile, TH1D, TH2D, TGraph, TDirectoryFile
 
-from ROOT.TObject import kOverwrite, kWriteDelete
+# from ROOT.TObject import kOverwrite, kWriteDelete
+from ROOT import TObject
+kOverwrite = TObject.kOverwrite
+kWriteDelete = TObject.kWriteDelete
 
 import uproot
 
