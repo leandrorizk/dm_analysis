@@ -46,8 +46,8 @@ ListOfChannelLabel = {"ee": r"$e^{+}e^{-}$", "uu": r"$\mu^{+}\mu^{-}$",
     "WW": r"$W^{+}W^{-}$", "ZZ": r"$ZZ$", "gamma": r"$\gamma\gamma$", "nue": r"$\nu \bar{\nu}_e$"}
 
 thKnots = np.load(SCRIPT_DIR+"/npy/thKnots.npy")
-eVJbins = np.load(SCRIPT_DIR+"/npy/eVJbins.npy")
-eEDJbins = np.load(SCRIPT_DIR+"/npy/eEDJbins.npy")
+eVJbins = np.load(SCRIPT_DIR+"/npy/eVJBins.npy")
+eEDJbins = np.load(SCRIPT_DIR+"/npy/eEDJBins.npy")
 thKnots_jp = np.load(SCRIPT_DIR+"/npy/thKnots_jp.npy")
 
 eRecBins = np.load(SCRIPT_DIR+"/npy/eRecBin.npy")
