@@ -22,8 +22,9 @@ from IPython.display import clear_output
 from ..external.v2dl3.IrfInterpolator import IrfInterpolator
 #from ..V2DL3.interpolate import IrfInterpolator
 
-from scipy.interpolate import interp2d
-from scipy.interpolate import RegularGridInterpolator
+# from scipy.interpolate import interp2d
+# interp2d is removed in scipy 1.14.0
+from scipy.interpolate import RectBivariateSpline
 
 from ..utils import newirf
 
@@ -274,7 +275,8 @@ class EventDisplay:
 		            hBias.SetBinContent(j, k, 0)
 		
 		z, x, y = getArray(hBias)
-		f = interp2d(x, y, z, kind='cubic')
+		# f = interp2d(x, y, z, kind='cubic')
+		f = RectBivariateSpline(x, y, z.T)
 
 		for i in range(1, hDispNorm.GetNbinsX()+1):
 			Etr = hDispNorm.GetXaxis().GetBinCenter(i)
@@ -298,7 +300,8 @@ class EventDisplay:
 				ratio = np.linspace(ratio_Elow if ratio_Elow>0.2 else 0.2, ratio_Ehigh if ratio_Ehigh<3 else 3, 10)
 				r_ctr = (ratio[1:]+ratio[:-1])/2.
 				dratio = np.diff(ratio)
-				r_intp = f(Elog10TeV, r_ctr)[:,0]*dratio
+				# r_intp = f(Elog10TeV, r_ctr, grid=False)[:,0]*dratio
+				r_intp = f(Elog10TeV, r_ctr, grid=False)*dratio
 				p = sum(r_intp[r_intp>0])
 				if p>1:
 					hDispNorm.SetBinContent(i, j, p)
