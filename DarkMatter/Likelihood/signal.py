@@ -12,7 +12,10 @@ from ..const import HDM_Channel2Num
 from .. import JProfile
 from ..utils import getArray, defineTheta2Cut, printRunList, thetaEdges
 
-from scipy.interpolate import interp1d, interp2d
+from scipy.interpolate import interp1d #, interp2d
+# interp2d is removed in scipy 1.14.0
+from scipy.interpolate import RectBivariateSpline
+
 import random
 
 from tqdm.notebook import tqdm
@@ -86,7 +89,8 @@ def calcSignal(dwarf, M, irf, package="EventDisplay", DM_spectra="PPPC",
     if jArray:
         if type(jProfile) == interp1d:
             jProfile_1d = jProfile
-        elif type(jProfile) == interp2d:
+        #elif type(jProfile) == interp2d:
+        elif type(jProfile) == RectBivariateSpline:
             jProfile_2d = jProfile
         else:
             if jProfile is None:
@@ -112,7 +116,8 @@ def calcSignal(dwarf, M, irf, package="EventDisplay", DM_spectra="PPPC",
             for e in en:
                 z+=[list(J2[e][:,1])]
             z = np.asarray(z).T
-            jProfile_2d = interp2d(np.log10(en), th, z, kind="quintic")
+            #jProfile_2d = interp2d(np.log10(en), th, z, kind="quintic")
+            jProfile_2d = RectBivariateSpline(np.log10(en), th, z.T, kx=5, ky=5)
     else:
         loadFile = False
         if jProfile is None:
@@ -158,7 +163,8 @@ def calcSignal(dwarf, M, irf, package="EventDisplay", DM_spectra="PPPC",
                 z.append(jz[jz[:,1] == e][:,0])
             z = np.asarray(z).T
             
-            jProfile_2d = interp2d(en, th, z, kind="quintic")
+            # jProfile_2d = interp2d(en, th, z, kind="quintic")
+            jProfile_2d = RectBivariateSpline(en, th, z.T, kx=5, ky=5)
         else:
             jx, jy = getArray(jProfile_1d)
 
