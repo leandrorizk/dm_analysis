@@ -134,8 +134,8 @@ def plotULcurve(Input, add_input=None, label=None, ax=None, addRelic=False, unit
     
     ax.set_title(r"$\langle \sigma v \rangle$ 95% UL curve", fontsize=15)
 
-    ax.grid(b=True, which="major")
-    ax.grid(b=True, which="minor", ls=":", lw=0.5)
+    ax.grid(visible=True, which="major")
+    ax.grid(visible=True, which="minor", ls=":", lw=0.5)
     if label is not None:
         ax.legend(fontsize=12, bbox_to_anchor=(1.05, 1), loc='upper left')
 
@@ -261,8 +261,8 @@ def plotExpULcurve(filename=None, dwarf=None, package=None, channel = None,
     if addRelic:
         ax.hlines(addRelic, xmin=xmin, xmax=xmax, ls="-.", color="r", label="Thermal relic")
 
-    ax.grid(b=True, which="major")
-    ax.grid(b=True, which="minor", ls=":", lw=0.5)
+    ax.grid(visible=True, which="major")
+    ax.grid(visible=True, which="minor", ls=":", lw=0.5)
     ax.legend(fontsize=12, bbox_to_anchor=(1.05, 1), loc='upper left')
 
 def plotDeviation(Input, expectedLine=None, ax=None, version="all", **kwargs):
@@ -545,8 +545,8 @@ def plotUnitarityR(Input, label=None, inv=True, vrel=2.e-5, units="GeV", **kwarg
     ax.set_xscale("log")
     ax.set_yscale("log")
 
-    ax.grid(b=True, which="major")
-    ax.grid(b=True, which="minor", ls=":", lw=0.5)
+    ax.grid(visible=True, which="major")
+    ax.grid(visible=True, which="minor", ls=":", lw=0.5)
     ax.legend(fontsize=12, bbox_to_anchor=(1.05, 1), loc='upper left')
 
     return intp_M, y
