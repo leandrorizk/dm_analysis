@@ -209,8 +209,17 @@ def generalizedNFW(dwarf, seed, props = [], verbose=False):
     return props, los
 
 def calcJProfile(dwarf, step=0.004, props = [], seed=-1, return_array=True, verbose=False, **kwargs):
+    """If return_array is True, return a 2D array with theta (in degrees) in the first column 
+    and dJ/dOmega for dwarf at theta in the second column, given step, seed, and props.
+    If return_array is False, return a TGraph plot of theta vs dJ/dOmega for dwarf.
+    If verbose is True, also print the J-factor for dwarf calculated from theta = dJ/dOmega[0,0]
+    to theta = dJ/dOmega[-1,0].
+    """
 
+    # profile_type is the DM density profile model. This may be found as a string value inside kwargs
+    # with keyword "general". If "general" is not a keyword in kwargs, profile_type will be False.
     profile_type = kwargs.pop("general", False)
+    
     if profile_type:
         props, los = generalizedNFW(dwarf, seed, props=props, verbose=verbose)
         r_t = TruncationRadius[dwarf]
@@ -218,15 +227,19 @@ def calcJProfile(dwarf, step=0.004, props = [], seed=-1, return_array=True, verb
         props, los = classicNFW(dwarf, seed, props=props)
         r_t = props[-1]
 
+    # Variable theta is a (n, 2)-array with step-spaced angles from step/2 to 2 in the first column,
+    # and step repeated throughout the second column.
     theta = np.asarray([[th, step] for th in np.arange(step/2, 2, step=step)])
-    
-    theta_rad = theta*TMath.DegToRad()
 
-    dJdOmega=np.zeros_like(theta_rad)
+    # Duplicate the first column of array theta into the the first column of dJdOmega.
+    dJdOmega=np.zeros_like(theta)
     dJdOmega[:,0] = theta[:,0]
 
-    d = Distance2Dwarf(dwarf)
+    theta_rad = theta*TMath.DegToRad()
 
+    d = Distance2Dwarf(dwarf)
+    
+#####
     for i, th in enumerate(theta_rad[:,0]):
         
         b = d*np.sin(th)
@@ -240,7 +253,7 @@ def calcJProfile(dwarf, step=0.004, props = [], seed=-1, return_array=True, verb
             break
         else:
             dJdOmega[i][1]=val
-
+#####
     if verbose:
         J = calcJval(dwarf, gJProf=dJdOmega, props=props)
         print("[Log] J profile is {:.1e}.".format(J[-1][-1]))
@@ -254,14 +267,30 @@ def calcJProfile(dwarf, step=0.004, props = [], seed=-1, return_array=True, verb
         return gdJdOmega
     
 def calcJval(dwarf, seed=-1, gJProf=None, props=[], deg=None, **kwargs):
+    """If deg is None, return a 2D array with theta (in degrees) in the first column and 
+    corresponding J-factor for dwarf at theta in the second column, given gJProf. 
+    If deg is given, return the value of the J-factor for dwarf at deg, given gJProf.
+    If gJProf for dwarf is not given, it is calculated using seed and props.
+    """
+    
     if gJProf is None:
+    # gJPrf is a (n, 2)-array with theta (in degrees) in the first column 
+    # and dJ/dOmega in the second.
         gJProf = calcJProfile(dwarf, seed=seed, props=props, **kwargs)
+        
     th = gJProf[:,0]
     dth = np.diff(gJProf[:,0])[0]
+
+    # Convert to radians
     th_rad = th * TMath.DegToRad()
     dth_rad = dth * TMath.DegToRad()
-    J = np.cumsum(gJProf[:,1]*2*np.pi*np.sin(th_rad)*dth_rad)
+
+    # Integrate by calulating dJ/dOmega 2pi sin(theta) delta_theta
+    # for every theta in gJProf and Riemann summing from gJProf[:,0][0] to 
+    # gJProf[:,0][i]
+    J = np.cumsum(gJProf[:,1]*2*np.pi*np.sin(th_rad)*dth_rad
     J = np.asarray([th, J]).T
+
     if deg is None:
         return J
     else:
