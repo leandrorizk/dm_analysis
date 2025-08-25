@@ -141,25 +141,29 @@ def calcAlexDMProfile(props, r = 1, plotting = False):
     return AlexDMProfile(r, rhos, rs, alpha, beta, gamma)
 
 def calcNFWProfile(props, r=1.):
-    j_val = lambda r, rhos, rs: (rhos/((r/rs)*(1+(r/rs))**2.))
+    # NFW equation for calculating DM density at r, with parameters rho_s and r_s
+    rho_NFW = lambda r, rhos, rs: rhos * (rs/r) * (1 + (r/rs)) ** -2.
 
     rhos = props[0]
     rs = props[1]
-    rt = props[2]
+    rt = props[2]  # truncation radius
     
     if (type(r) == np.float64) or (type(r) == float):
         if r>rt:
+            # Beyond truncation radius, DM density is 0
             return 0
         else:
-            return j_val(r, rhos, rs)
+            return rho_NFW(r, rhos, rs)
     else:
+        # Assume r is a list or array of radii
         rad = r
         output = []
         for r in rad:
             if r>rt:
+                # Beyond truncation radius, DM density is 0
                 output.append(0)
             else:
-                output.append(j_val(r, rhos, rs))
+                output.append(rho_NFW(r, rhos, rs))
         return np.asarray(output)
 
 def getThMax(dwarf):
@@ -172,6 +176,7 @@ def classicNFW(dwarf, seed, props=[]):
     los=lambda x, b, props: calcNFWProfile(props, np.sqrt(b**2+x**2))**2
 
     if dwarf == "UMa_III":
+        # UMa3 parameters for NFW profile defined here
         props = [0.276, 1051.3, 87]
         return props, los
     elif len(props) == 0:
@@ -239,7 +244,6 @@ def calcJProfile(dwarf, step=0.004, props = [], seed=-1, return_array=True, verb
 
     d = Distance2Dwarf(dwarf)
     
-#####
     for i, th in enumerate(theta_rad[:,0]):
         
         b = d*np.sin(th)
@@ -253,7 +257,7 @@ def calcJProfile(dwarf, step=0.004, props = [], seed=-1, return_array=True, verb
             break
         else:
             dJdOmega[i][1]=val
-#####
+
     if verbose:
         J = calcJval(dwarf, gJProf=dJdOmega, props=props)
         print("[Log] J profile is {:.1e}.".format(J[-1][-1]))
@@ -288,7 +292,7 @@ def calcJval(dwarf, seed=-1, gJProf=None, props=[], deg=None, **kwargs):
     # Integrate by calulating dJ/dOmega 2pi sin(theta) delta_theta
     # for every theta in gJProf and Riemann summing from gJProf[:,0][0] to 
     # gJProf[:,0][i]
-    J = np.cumsum(gJProf[:,1]*2*np.pi*np.sin(th_rad)*dth_rad
+    J = np.cumsum(gJProf[:,1]*2*np.pi*np.sin(th_rad)*dth_rad)
     J = np.asarray([th, J]).T
 
     if deg is None:

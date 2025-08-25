@@ -23,7 +23,8 @@ from ..ResponseFunction.eventdisplay import th2cut_ext
 from ..const import defaultNum
 
 def generateConvolvedJ(dwarf, package="EventDisplay", filename = None, irf=None, gJProf=None, th2Cut=0, version="all", seed = -1, return_array=False, save_array=False, ext=False, step=0.004, verbose=True, **kwargs):
-    
+
+    # ignore for now
     if kwargs.pop("allow_load", False):
         if seed == defaultNum[dwarf]:
             if ext:
@@ -40,6 +41,7 @@ def generateConvolvedJ(dwarf, package="EventDisplay", filename = None, irf=None,
                 save_array=True
                 pass
 
+    # ignore for now
     # Read IRFs
     if irf is not None:
         if hasattr(irf, "package"):
@@ -48,7 +50,9 @@ def generateConvolvedJ(dwarf, package="EventDisplay", filename = None, irf=None,
                     if verbose: 
                         print("[Warning] IRFs and package are mismatched. The package name is changed from {} to {}.".format(package, irf.package))
                     package=irf.package
+    
     else:
+        # ignore for now
         if package=="VEGAS":
             energies = const.eVJbins
             try:
